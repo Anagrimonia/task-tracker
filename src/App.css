@@ -1,0 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+*:focus {
+    outline: none;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+}
+
+.task-tracker {
+  margin: 20px 50px;
+  min-width: 600px;
+}
+
+.add-form {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  background-color: #f7f7f7;
+  padding: 5px;
+}
+
+.add-form * {
+  margin: 5px;
+  padding: 5px;
+}
+
+.add-form__description {
+  grid-column: 1/3;
+  resize: none;
+  font-family: 'Roboto', sans-serif;
+}
+
+.add-form__submit {
+  grid-column: 1/3;
+  background-color: #008CBA; 
+  border: none;
+  color: white;
+  border-radius: 5px;
+  transition-duration: 0.3s;
+}
+
+.add-form__submit:hover {
+  background-color: #0080B0;
+}
+
+.task-table {
+  margin: 15px 0 0 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  word-wrap: break-word;
+}
+
+.task-table td, th {
+  padding: 10px;
+  vertical-align: top;
+}
+
+.task-table th {
+  cursor: pointer;
+  text-decoration: underline;
+  border: 1px solid #ddd;
+  transition-duration: 0.3s;
+}
+
+.task-table th:hover {
+  background-color: #fbfbfb;
+}
+
+.task-table tr:nth-child(even) {
+  background-color: #f7f7f7;
+}
+
+.task-table th:nth-child(1) {
+  width: 180px;
+}
+
+.task-table th:nth-child(3) {
+  width: 150px;
+}
+
+.task-table th:nth-child(4) {
+  width: 50px;
+}
+
+.task-table__date {
+  text-align: center;
+}
+
+.task-table__priority {
+  text-align: center;
+}
