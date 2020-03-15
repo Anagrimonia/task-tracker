@@ -1,22 +1,36 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+//import './App.css';
+import styles from "./App.scss";
+import classnames from 'classnames';
+
+const cx = classnames.bind(styles);
+
+const ThemeBar = ({theme, onThemeChange}) => {
+  return (
+    <div className={cx("theme-bar", { [`theme-bar__theme-${theme}`]: true })} >
+      <button className={cx("theme-bar__button button", { [`button__theme-${theme}`]: true })}
+              onClick={onThemeChange}>
+              Switch theme
+      </button>
+    </div>
+  );
+};
 
 const Task = ({name, description, priority, date}) => {
   return (
-    <tr className="task-table__task">
-      <td className="task-table__name">{name}</td>
-      <td className="task-table__description">{description}</td>
-      <td className="task-table__date">{date}</td>
-      <td className="task-table__priority">{priority}</td>
+    <tr className={cx("task-table__task")}>
+      <td className={cx("task-table__name")}>{name}</td>
+      <td className={cx("task-table__description")}>{description}</td>
+      <td className={cx("task-table__date")}>{date}</td>
+      <td className={cx("task-table__priority")}>{priority}</td>
     </tr>
   );
 };
 
-const TaskTable = ({data, onSort}) => {
+const TaskTable = ({theme, data, onSort}) => {
   return (
       <div>
-        <table className="task-table">
+        <table className={cx("task-table", { [`task-table__theme-${theme}`]: true })}>
           <tbody>
             <tr>
               <th><p onClick={() => onSort('name')}>Name</p></th>
@@ -61,29 +75,29 @@ class TaskAdder extends React.Component {
 
   render() {
     return (
-      <div className="add-form">
+      <div className={cx("add-form", { [`add-form__theme-${this.props.theme}`]: true })}>
         <input 
           type="text" 
           placeholder="Name" 
-          className="add-form__name"
+          className={cx("add-form__name")}
           value={this.state.name} 
           onChange={(e) => this.handleChange(e, 'name')} 
         />
         <input 
           type="text" 
           placeholder="Priority" 
-          className="add-form__priority"
+          className={cx("add-form__priority")}
           value={this.state.priority } 
           onChange={(e) => this.handleChange(e, 'priority')} 
          />
         <textarea 
           rows="3" 
           placeholder="Description" 
-          className="add-form__description"
+          className={cx("add-form__description")}
           value={this.state.description } 
           onChange={(e) => this.handleChange(e, 'description')} 
         />
-        <button className="add-form__submit"
+        <button className={cx("add-form__submit button")}
                 onClick={this.handleTaskAdd}>
                 Add
         </button>
@@ -116,18 +130,34 @@ class TaskTracker extends React.Component {
   }
 
   render() {
-
     return (
-      <div className="task-tracker">
-        <TaskAdder onTaskAdd = {this.onTaskAdd} />
-        <TaskTable data={this.state.data} onSort={this.onSort}/>
+      <div className={cx("task-tracker")}>
+        <TaskAdder theme = {this.props.theme} onTaskAdd = {this.onTaskAdd} />
+        <TaskTable theme = {this.props.theme} data={this.state.data} onSort={this.onSort}/>
       </div>
     );
   }
 }
 
-const App = () => {
-  return <TaskTracker />;
-};
+class App extends React.Component {
+  state = {
+    theme: "light"
+  };
+
+  onThemeChange = () => {
+    this.setState({ theme: (this.state.theme === 'dark' ? 'light' : 'dark') });
+    console.log(this.state.theme);
+  };
+
+  render() {
+    return (
+      <div className={cx('container', { [`container__theme-${this.state.theme}`]: true })}>
+        <ThemeBar theme={this.state.theme} onThemeChange={this.onThemeChange} />
+        <TaskTracker theme={this.state.theme}/>
+      </div>
+    );
+  }
+}
+
 
 export default App;
