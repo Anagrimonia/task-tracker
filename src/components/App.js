@@ -27,6 +27,20 @@ const mapDispatchToProps = dispatch => ({
   changeTheme: theme => dispatch(changeTheme(theme))
 });
 
+
+const ProjectsPage = (theme) => {
+  return <ProjectWrapper theme={theme} />
+};
+
+const TasksPage = (projectId, theme) => {
+  return (
+    <div>
+      <Link to='/projects'><p className={cx("info")}>Go back</p></Link>
+      <TaskWrapper id={projectId} theme={theme} />
+    </div>
+  );
+};
+
 class App extends React.Component {
 
   onThemeChange = () => {
@@ -41,17 +55,15 @@ class App extends React.Component {
           <Switch>
             <Route exact path='/' render={() => <Redirect to='/projects' />} />
             <Route exact path='/projects'>
-              <ProjectWrapper theme={this.props.theme} />
+              <ProjectsPage theme={this.props.theme}/>
             </Route>
             <Route exact path='/projects/:id(\d+)' 
                    render={(props) => {
-                    if (props.match.params.id >= 0 
-                      && props.match.params.id < this.props.projects.length)
-                      return (<div>
-                                <Link to='/projects'><p className={cx("info")}>Go back</p></Link>
-                                <TaskWrapper id={props.match.params.id} theme={this.props.theme} />
-                              </div>)
-                    else return <Redirect to='/projects' />;
+                    const projectId = props.match.params.id;
+                    if (projectId >= 0 && projectId < this.props.projects.length)
+                      return <TasksPage projectId={projectId} theme={this.props.theme} />
+                    else 
+                      return <Redirect to='/projects' />
             }}/>
             <Route>
               <p className={cx("info")}>404: Page Not Found</p>

@@ -18,7 +18,7 @@ const rootReducer = (state = defaultState, action) => {
     }
 
     case ADD_TASK: {
-      var project_tasks = action.payload.project_id in state.tasks ? state.tasks[action.payload.project_id] : [];
+      var project_tasks = action.payload.project_id in state.tasks ? [...state.tasks[action.payload.project_id]] : []
       project_tasks.push(action.payload.task);
 
       return {
