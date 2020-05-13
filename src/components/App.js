@@ -4,9 +4,9 @@ import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom'
 import classnames from 'classnames';
 import styles from "./App.scss";
 
-import { Provider } from "react-redux";
-import { connect } from "react-redux";
-import { createStore } from "redux";
+import thunk from 'redux-thunk';
+import { Provider, connect } from "react-redux";
+import { createStore, applyMiddleware } from 'redux';
 
 import rootReducer from "../reducers";
 import { changeTheme } from "../actions";
@@ -14,13 +14,16 @@ import { changeTheme } from "../actions";
 import ThemeBar from "./ThemeBar";
 import TaskWrapper from "./TaskWrapper";
 import ProjectWrapper from "./ProjectWrapper";
+import Authorization from "./Authorization";
+
+import PropTypes from 'prop-types';
 
 const cx = classnames.bind(styles);
-const store = createStore(rootReducer);
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 const mapStateToProps = state => ({
   theme: state.theme,
-  projects: state.projects
+  user: state.user
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -32,14 +35,45 @@ const ProjectsPage = (theme) => {
   return <ProjectWrapper theme={theme} />
 };
 
-const TasksPage = (projectId, theme) => {
+const TasksPage = (project_id, theme) => {
   return (
     <div>
-      <Link to='/projects'><p className={cx("info")}>Go back</p></Link>
-      <TaskWrapper id={projectId} theme={theme} />
+      <Link to='/projects'>
+        <p className={cx("info")}>
+          Go back
+        </p>
+      </Link>
+      <TaskWrapper id={project_id} theme={theme} />
     </div>
   );
 };
+
+const NotFoundPage = () => {
+  return (
+    <div>
+      <p className={cx("info")}>
+        404: Page Not Found
+      </p>
+      <Link to='/projects'>
+        <p className={cx("info")}>
+          Go back
+        </p>
+      </Link>
+    </div>
+  );
+};
+
+const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={(props) => (
+    rest.user ? <Component {...props} /> : <Redirect to='/login' />
+  )} />
+)
+
+const AuthRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={(props) => (
+    rest.user ? <Redirect to='/projects' /> : <Component {...props} />
+  )} />
+)
 
 class App extends React.Component {
 
@@ -51,24 +85,13 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <div className={cx('container', { [`container__theme-${this.props.theme}`]: true })}>
-          <ThemeBar theme={this.props.theme} onThemeChange={this.onThemeChange} />
+          <ThemeBar onThemeChange={this.onThemeChange} />
           <Switch>
-            <Route exact path='/' render={() => <Redirect to='/projects' />} />
-            <Route exact path='/projects'>
-              <ProjectsPage theme={this.props.theme}/>
-            </Route>
-            <Route exact path='/projects/:id(\d+)' 
-                   render={(props) => {
-                    const projectId = props.match.params.id;
-                    if (projectId >= 0 && projectId < this.props.projects.length)
-                      return <TasksPage projectId={projectId} theme={this.props.theme} />
-                    else 
-                      return <Redirect to='/projects' />
-            }}/>
-            <Route>
-              <p className={cx("info")}>404: Page Not Found</p>
-              <Link to='/projects'><p className={cx("info")}>Go back</p></Link>
-            </Route>
+            <Route exact path='/' component={() => <Redirect to='/projects'/>} />
+            <AuthRoute exact path='/login' component={Authorization} user={this.props.user} />
+            <PrivateRoute exact path='/projects' component={ProjectsPage} user={this.props.user} />
+            <PrivateRoute exact path='/projects/:id(\d+)' component={TasksPage} user={this.props.user} />
+            <Route component={NotFoundPage} />
           </Switch>
         </div>
       </BrowserRouter>
@@ -81,6 +104,11 @@ const AppContainer = () => (
     <ConnectedApp />
   </Provider>
 );
+
+App.propTypes = {
+  theme: PropTypes.string,
+  user: PropTypes.string
+};
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
 

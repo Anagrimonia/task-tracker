@@ -1,36 +1,35 @@
 import React from 'react';
 import classnames from 'classnames';
-import styles from "../App.scss";
+import styles from "./App.scss";
 
 import { connect } from "react-redux";
-import { addProject } from "../../actions";
+import { initProjects, addProject } from "../actions";
 
-import ProjectAdder from "../ProjectAdder";
-import ProjectTable from "../ProjectTable";
+import ProjectAdder from "./ProjectAdder";
+import ProjectTable from "./ProjectTable";
+
+import PropTypes from 'prop-types';
 
 const cx = classnames.bind(styles);
 
 const mapStateToProps = state => ({
-  projects: state.projects
+  projects: state.projects,
+  theme: state.theme,
 });
 
 const mapDispatchToProps = dispatch => ({
+  initProjects: () => dispatch(initProjects()),
   addProject: project => dispatch(addProject(project)),
 });
 
 class ProjectWrapper extends React.Component {
 
+  componentDidMount() {
+    this.props.initProjects();
+  }
+
   onProjectAdd = (project) => {
-
-  if (project.name === '')
-        project.name = 'Project'
-      
-
-    var obj = { id: this.props.projects.length, 
-               date: new Date().toLocaleTimeString() + "\t" + new Date().toLocaleDateString(),
-               ...project };
-
-    this.props.addProject(obj);
+    this.props.addProject(project);
   };
 
   render() {
@@ -42,5 +41,10 @@ class ProjectWrapper extends React.Component {
     );
   }
 }
+
+ProjectWrapper.propTypes = {
+  theme: PropTypes.string,
+  projects: PropTypes.array,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectWrapper); 
