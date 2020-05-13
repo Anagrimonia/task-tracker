@@ -1,60 +1,97 @@
-import { ADD_PROJECT, ADD_TASK, SORT_TASKS, CHANGE_THEME } from "../actions";
+import { combineReducers } from 'redux';
+import {
+  REGISTER_USER,
+  LOGIN_USER,
+  INIT_PROJECTS, 
+  INIT_TASKS, 
+  ADD_PROJECT, 
+  ADD_TASK, 
+  EDIT_TASK,
+  SORT_TASKS, 
+  CHANGE_THEME 
+} from "../actions";
 
-const defaultState = {
-  projects: [],
-  tasks: {},
-  theme: 'light',
-};
-        
-
-const rootReducer = (state = defaultState, action) => {
+const userReducer = (state = '', action) => {
   switch (action.type) {
+    case REGISTER_USER:
+      return (action.payload) ? action.payload : state;
 
-    case ADD_PROJECT: {
-      return {
-        ...state,
-        projects: [...state.projects, action.payload]
-      };
-    }
+    case LOGIN_USER:
+      console.log(action.payload);
+      return (action.payload) ? action.payload : state;
 
-    case ADD_TASK: {
-      var project_tasks = action.payload.project_id in state.tasks ? [...state.tasks[action.payload.project_id]] : []
-      project_tasks.push(action.payload.task);
-
-      return {
-        ...state,
-        tasks: {...state.tasks, [action.payload.project_id]: project_tasks }
-      };
-    }
-
-    case SORT_TASKS: {
-
-      var param = action.payload;
-      var sorted = {};
-
-      for (const [key, value] of Object.entries(state.tasks)) {
-        sorted[key] = [].slice.call(value).sort((a, b) => {
-        if (!isNaN(a[param]) || !isNaN(b[param])) return a[param] - b[param];
-        if (a[param] === b[param]) return 0;
-        return a[param] > b[param] ? 0 : -1;
-        });
-      }
-
-      return {
-        ...state,
-        tasks: sorted
-      };
-    }
-
-    case CHANGE_THEME: {
-      return {
-        ...state,
-        theme: action.payload
-      }
-    }
     default:
       return state;
   }
 };
+
+const tasksReducer = (state = [], action) => {
+  switch (action.type) {
+    case INIT_TASKS:
+      return (action.payload) ? action.payload : state;
+
+    case ADD_TASK:
+      return (action.payload) ? [...state, action.payload] : state;
+      
+    case EDIT_TASK:
+      return state.map((task) =>
+        (action.payload.id === task.id) ? action.payload : task
+      );
+
+    case SORT_TASKS:
+      return [...state].sort((a, b) => {
+        switch (action.payload) {
+          case 'name':
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+          case 'description':
+            const descA = a.description.toLowerCase();
+            const descB = b.description.toLowerCase();
+            return descA < descB ? -1 : descA > descB ? 1 : 0;
+          case 'priority':
+            return a.priority - b.priority;
+          case 'completed':
+            return (a.completed === b.completed) ? 0 : a.completed ? -1 : 1;
+          default:
+            return true;
+        }
+      });
+
+    default:
+      return state;
+  }
+};
+
+const projectsReducer = (state = [], action) => {
+  switch (action.type) {
+    case INIT_PROJECTS:
+      return action.payload ? action.payload : [];
+
+    case ADD_PROJECT:
+      return [...state, action.payload];
+
+    default:
+      return state;
+  }
+};
+
+const themeReducer = (state = 'light', action) => {
+  switch (action.type) {
+    case CHANGE_THEME:
+      return action.payload;
+
+    default:
+      return state;
+  }
+};
+
+
+const rootReducer = combineReducers({
+  user: userReducer,
+  projects: projectsReducer,
+  tasks: tasksReducer,
+  theme: themeReducer,
+});
 
 export default rootReducer;

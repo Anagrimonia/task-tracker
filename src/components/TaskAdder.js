@@ -1,6 +1,9 @@
 import React from 'react';
 import classnames from 'classnames';
-import styles from "../App.scss";
+import styles from "./App.scss";
+
+import PropTypes from 'prop-types';
+
 
 const cx = classnames.bind(styles);
 
@@ -10,6 +13,7 @@ class TaskAdder extends React.Component {
     return {
       name: '',
       description: '',
+      completed: false,
       priority: '',
     };
   };
@@ -38,7 +42,7 @@ class TaskAdder extends React.Component {
           onChange={(e) => this.handleChange(e, 'name')} 
         />
         <input 
-          type="text" 
+          type="number" 
           placeholder="Priority" 
           className={cx("add-form__priority")}
           value={this.state.priority } 
@@ -59,5 +63,10 @@ class TaskAdder extends React.Component {
     );
   }
 }
+
+TaskAdder.propTypes = {
+  theme: PropTypes.string,
+  onTaskAdd: PropTypes.func,
+};
 
 export default TaskAdder; 
